@@ -2,11 +2,31 @@
 
 namespace Cube\Bundle\CubeBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Class Configuration
+ * @package Cube\Bundle\CubeBundle\DependencyInjection
+ * @author Luciano Mammino <lmammino@oryzone.com>
+ */
 class Configuration implements ConfigurationInterface
 {
+    protected static $DEFAULT_CLIENT = array(
+        'connection_class' => '\Cube\Connection\HttpConnection',
+        'secure' => false,
+        'collector' => array(
+            'host' => 'localhost',
+            'port' => 1080
+        ),
+        'evaluator' => array(
+            'host' => 'localhost',
+            'port' => 1081
+        )
+    );
+
     /**
      * {@inheritDoc}
      */
@@ -17,43 +37,76 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->canBeDisabled()
+            ->beforeNormalization()
+                ->ifTrue(function ($v) { return is_array($v) && !array_key_exists('clients', $v) && !array_key_exists('client', $v); })
+                ->then(function ($v) {
+                    // Key that should not be moved to the clients config
+                    $excludedKeys = array('default_client' => true, 'enabled' => true);
+                    $client = array();
+                    foreach ($v as $key => $value) {
+                        if (isset($excludedKeys[$key])) {
+                            continue;
+                        }
+                        $client[$key] = $v[$key];
+                        unset($v[$key]);
+                    }
+                    $v['default_client'] = isset($v['default_client']) ? (string) $v['default_client'] : 'default';
+                    $v['clients'] = array($v['default_client'] => $client);
+
+                    return $v;
+                })
+            ->end()
+            ->validate()
+                ->ifTrue(function($v) { return ! array_key_exists($v['default_client'], $v['clients']); })
+                ->thenInvalid('The default client has not been defined in the clients configuration')
+            ->end()
             ->children()
                 ->scalarNode('default_client')
                     ->defaultValue('default')
                 ->end()
+                ->scalarNode('connection_class')->end()
+                ->booleanNode('secure')->end()
+                ->arrayNode('collector')->end()
+                ->arrayNode('evaluator')->end()
             ->end()
+            ->fixXmlConfig('client')
+            ->append($this->getClientsNode())
         ;
-
-        $rootNode->append($this->createClientsNode());
 
         return $treeBuilder;
     }
 
     /**
-     * @return \Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition|\Symfony\Component\Config\Definition\Builder\NodeDefinition
+     * Creates clients node
+     *
+     * @return ArrayNodeDefinition|NodeDefinition
      */
-    protected function createClientsNode()
+    protected function getClientsNode()
     {
         $treeBuilder = new TreeBuilder();
         $node = $treeBuilder->root('clients');
+
         $node
-            ->requiresAtLeastOneElement()
+            ->defaultValue(array(
+                'default' => self::$DEFAULT_CLIENT
+            ))
+            ->useAttributeAsKey('name')
             ->prototype('array')
                 ->children()
                     ->scalarNode('connection_class')
-                        ->defaultValue('\Cube\Connection\HttpConnection')
+                        ->defaultValue(self::$DEFAULT_CLIENT['connection_class'])
                         ->validate()
                             ->ifTrue(function($value){
-                                class_exists($value);
+                                return !class_exists($value);
                             })
-                            ->thenInvalid('Invalid class name: class not found')
+                            ->thenInvalid('Invalid class "%s": class not found')
                         ->end()
                     ->end()
                     ->booleanNode('secure')
-                        ->defaultFalse()
+                        ->defaultValue(self::$DEFAULT_CLIENT['secure'])
                     ->end()
-                    ->append($this->createServerNode('collector', 1080))
-                    ->append($this->createServerNode('evaluator', 1081))
+                    ->append($this->createServerNode('collector', self::$DEFAULT_CLIENT['collector']['port']))
+                    ->append($this->createServerNode('evaluator', self::$DEFAULT_CLIENT['evaluator']['port']))
                 ->end()
             ->end()
         ;

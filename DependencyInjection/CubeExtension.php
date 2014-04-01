@@ -7,6 +7,11 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 
+/**
+ * Class CubeExtension
+ * @package Cube\Bundle\CubeBundle\DependencyInjection
+ * @author Luciano Mammino <lmammino@oryzone.com>
+ */
 class CubeExtension extends Extension
 {
     /**
