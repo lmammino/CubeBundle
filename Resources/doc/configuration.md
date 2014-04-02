@@ -93,6 +93,6 @@ If you prefer to not define a new service, you can leverage an existing client f
 Once you got the factory instance you can retrieve the client instance as the following snippet show:
 
 ```php
-    $factory = $container->get('cube_client_factory');
-    $client2 = $factory->create('client2');
+$factory = $container->get('cube_client_factory');
+$client2 = $factory->create('client2');
 ```
