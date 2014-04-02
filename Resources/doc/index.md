@@ -45,7 +45,7 @@ cube:
 
 You can achieve a finer level of configuration if needed, for example you can also define many clients (collectors/evaluators)
 couples if you use more than once.
-For all available configuration options, please see the [configuration reference](Resources/doc/configuration.md).
+For all available configuration options, please see the [configuration reference](/Resources/doc/configuration.md).
 
 ## Usage
 The configured cube client is available as `cube_client` service. You can easily inject it in other services or fetch
@@ -85,6 +85,6 @@ foreach ($event in $events) {
 
 
 ## License
-The code is released under the [MIT license](Resources/meta/LICENSE).
+The code is released under the [MIT license](/Resources/meta/LICENSE).
 
 
