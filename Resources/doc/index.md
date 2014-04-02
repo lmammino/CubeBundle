@@ -29,18 +29,18 @@ $bundles = array(
 
 
 ## Configuration
-CubeBundle configuration adopts sensible defaults that should be fine in most of cases.
-If your cube collector and evaluator run in localhost on their default ports you are ready to go yet.
-Otherwise, you need to define a configuration block in your `config.yml`:
+Cube Bundle configuration adopts sensible defaults that should be fine in most of cases.
+If your cube collector and evaluator run in localhost and uses their default ports you are ready to go yet.
+Otherwise, you need to define a `cube` configuration block in your `config.yml`:
 
 ```yaml
 cube:
     collector:
-        host: <collector_host>
-        port: <collector_port>
+        host: <collector_host> #default: localhost
+        port: <collector_port> #default: 1080
     evaluator:
-        host: <evaluator_host>
-        port: <evaluator_port>
+        host: <evaluator_host> #default: localhost
+        port: <evaluator_port> #default: 1081
 ```
 
 You can achieve a finer level of configuration if needed, for example you can also define many clients (collectors/evaluators)
