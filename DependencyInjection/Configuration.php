@@ -14,6 +14,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
+    /**
+     * Default client configuration
+     */
     protected static $DEFAULT_CLIENT = array(
         'connection_class' => '\Cube\Connection\HttpConnection',
         'secure' => false,
