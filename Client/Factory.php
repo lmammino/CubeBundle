@@ -5,18 +5,39 @@ namespace Cube\Bundle\CubeBundle\Client;
 use Cube\Client;
 use Cube\Connection\Connection;
 
+/**
+ * A factory class for Cube clients
+ * @package Cube\Bundle\CubeBundle\Client
+ * @author Luciano Mammino <lmammino@oryzone.com>
+ */
 class Factory
 {
+    /**
+     * @var \Cube\Client $client
+     */
     protected $clients;
 
+    /**
+     * @var array $instances
+     */
     protected $instances;
 
+    /**
+     * Constructor
+     * @param array $clients
+     */
     public function __construct($clients)
     {
         $this->clients = $clients;
         $this->instances = array();
     }
 
+    /**
+     * Creates an instance
+     * @param string $name
+     * @return \Cube\Client
+     * @throws \InvalidArgumentException if the name is not valid
+     */
     public function create($name)
     {
         if (!isset($this->instances[$name])) {
@@ -53,4 +74,4 @@ class Factory
         return $this->instances[$name];
     }
 
-} 
+}
